@@ -386,7 +386,6 @@ async def manage_open_windows(cycle):
     try:
         def winEnumHandler( hwnd, ctx ):
             if win32gui.IsWindowVisible( hwnd ):
-                print(win32gui.GetWindowText( hwnd ));
                 if "Bombcrypto - Google Chrome" == win32gui.GetWindowText( hwnd ) or "Bombcrypto - Mozilla Firefox" == win32gui.GetWindowText( hwnd ) or "Bombcrypto - Opera" == win32gui.GetWindowText( hwnd ):
                     bomb_open_windows.append(hwnd)
         win32gui.EnumWindows( winEnumHandler, None )
@@ -554,6 +553,13 @@ def get_config_value_by_property(prop):
         if prop in k_val.split('=')[0]:
             return k_val.split('=')[1]
 
+def get_env_value_by_property(prop):
+    my_file = open(".env")
+    content = my_file.read()
+    key_values = content.splitlines()
+    for k_val in key_values:
+        if prop in k_val.split('=')[0]:
+            return k_val.split('=')[1]
 
 
 def edit_config_value_by_property(prop, new_val):
@@ -587,7 +593,8 @@ async def on_ready():
     
 
 def long_operation_thread(window):
-    client.run('OTI4ODQ2OTA1MDY3MzMxNjM0.YdeuFw.selHKD1N56Tzo8-1JKUf757cjEo')
+    token = get_env_value_by_property('BOT_TOKEN')
+    client.run(token)
 
 
 def bot_loop():
