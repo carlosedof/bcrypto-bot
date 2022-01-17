@@ -738,7 +738,7 @@ def the_gui():
         [
             sg.Text('Logs:', font=('Arial', 10, 'bold'))],
         [
-            # sg.Output(size=(45, 5))
+            sg.Output(size=(45, 5))
         ],
         [
             sg.Column(bot_img_col, element_justification='left',expand_x=True),
