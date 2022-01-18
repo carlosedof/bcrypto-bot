@@ -17,13 +17,14 @@ This is the docs of python bcrypto bot.
 
 ## Tech
 
-Dillinger uses a number of open source projects to work properly:
+Bcrypto bot uses a number of libs to work properly:
 
 - [Python]
 - [pyautogui] - Manage keyboard and mouse to automate tasks
 - [pysimplegui] - Create user interface
 - [opencv-python] - Compare screen with references
 - [cx-freeze] - Generate bot executable
+- [NSIS] - Create installer
 
 ## Requirements
 
