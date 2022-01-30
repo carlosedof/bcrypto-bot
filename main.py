@@ -1,5 +1,4 @@
 import time
-
 import cv2
 import pyautogui
 import requests
@@ -19,7 +18,41 @@ from check_team_viewer import check_team_viewer
 from close_list_go_farm import close_list_go_farm
 from utils.randomness import add_random
 from utils.date import date_formatted
+import string
+    
+def get_config_value_by_property(prop):
+    my_file = open("configs.txt")
+    content = my_file.read()
+    key_values = content.splitlines()
+    for k_val in key_values:
+        if prop in k_val.split('=')[0]:
+            return k_val.split('=')[1]
 
+def get_env_value_by_property(prop):
+    my_file = open(".env")
+    content = my_file.read()
+    key_values = content.splitlines()
+    for k_val in key_values:
+        if prop in k_val.split('=')[0]:
+            return k_val.split('=')[1]
+
+
+def edit_config_value_by_property(prop, new_val):
+    my_file = open("configs.txt")
+    content = my_file.read()
+    key_values = content.splitlines()
+    new_list = []
+    to_edit = None
+    for k_val in key_values:
+        if prop in k_val.split('=')[0]:
+            to_edit = k_val.split('=')[0]
+        else:
+            new_list = [*new_list, k_val]
+    my_file_write = open("configs.txt", "w")
+    new_str = prop + '=' + new_val + '\n'
+    for n_list in new_list:
+        new_str = new_str + n_list + '\n'
+    my_file_write.write(new_str)
 
 def connect_wallet():
     now = time.time()
@@ -336,17 +369,19 @@ def refresh_cycle():
 async def screenshot_cycle():
     global window
     now = time.time()
-    prepare_routing_warning('SCREEN SHOT')
-    solve_errors()
+    user_id = get_config_value_by_property('DISCORD_USER_ID')
+    if user_id:
+        prepare_routing_warning('SCREEN SHOT')
+        solve_errors()
+        window.write_event_value('TASK_UPDATE', 'Taking screenshot')
+        prepare_screen_shot()
+        user = await client.fetch_user(int(user_id))
+        await user.send(file=discord.File('print.png'))
+        if isfile('print.png'):
+            os.remove('print.png')
+        window.write_event_value('TASK_UPDATE', 'Idle')
+        print(date_formatted() + ' - took screenshot')
     last["screen_shot"] = now
-    window.write_event_value('TASK_UPDATE', 'Taking screenshot')
-    prepare_screen_shot()
-    user = await client.fetch_user(194282818505801730)
-    await user.send(file=discord.File('print.png'))
-    if isfile('print.png'):
-        os.remove('print.png')
-    window.write_event_value('TASK_UPDATE', 'Idle')
-    print(date_formatted() + ' - took screenshot')
 
 async def validate_account_cycle():
     now = time.time()
@@ -513,7 +548,6 @@ def check_account_active():
 
 client = discord.Client()
 
-
 valid_account = True
 @tasks.loop(seconds=2)
 async def check_send_print():
@@ -529,55 +563,62 @@ async def check_send_print():
     }
     if valid_account:
         await main()
+        
+
+async def handle_register_message(message):
+    global temp_discord_id
+    temp_discord_id = message.channel.recipient.id
+    await message.reply('Hello! Do you want to proceed with registration of this discord user? \nanswer: /yes or /no ')
+
+async def handle_proceed_registration(message):
+    await message.reply('Ok, please inform your registration key. Example: [registration key here]')
+
+async def handle_finish_registration(message):
+    global temp_discord_id
+    user = await client.fetch_user(temp_discord_id)
+    await user.send('Wait a moment please...')
+    key = get_config_value_by_property('KEY')
+    time.sleep(1.5)
+    user = await client.fetch_user(temp_discord_id)
+    if message.content.translate({ord(c): None for c in '[]'}) == key:
+        edit_config_value_by_property('DISCORD_USER_ID', str(temp_discord_id))
+        await user.send('Your registration is complete! Now you are able to receive prints from your bcrypto bot.')
+    else:
+        await user.send('The informed registration key does not match with the key your bot is running.')
 
 
+async def handle_sent_print_by_request(message):
+    now = time.time()
+    global last_print_sent
+    user_id = get_config_value_by_property('DISCORD_USER_ID')
+    if user_id:
+        if last_print_sent is None or now - last_print_sent > 30:
+            image = pyautogui.screenshot()
+            image.save('printA.png')
+            user = await client.fetch_user(int(user_id))
+            await user.send(file=discord.File('printA.png'))
+            if isfile('printA.png'):
+                os.remove('printA.png')
+            last_print_sent = now
+    else:
+        await message.reply('You have not registered your registration key in discord bot, type /register to be able to receive your bot infos.')
 
 
 @client.event
 async def on_message(message):
+    global temp_discord_id
     if message.content.startswith('print'):
-        image = pyautogui.screenshot()
-        image.save('printA.png')
-        user = await client.fetch_user(194282818505801730)
-        await user.send(file=discord.File('printA.png'))
-        if isfile('printA.png'):
-            os.remove('printA.png')
+        await handle_sent_print_by_request(message)
+    if message.content.startswith('/register'):
+        await handle_register_message(message)
+    if message.content.startswith('/no'):
+        temp_discord_id = None
+        await message.reply('Ok!')
+    if message.content.startswith('/yes'):
+        await handle_proceed_registration(message)
+    if message.content.startswith('['):
+        await handle_finish_registration(message)
 
-    
-
-def get_config_value_by_property(prop):
-    my_file = open("configs.txt")
-    content = my_file.read()
-    key_values = content.splitlines()
-    for k_val in key_values:
-        if prop in k_val.split('=')[0]:
-            return k_val.split('=')[1]
-
-def get_env_value_by_property(prop):
-    my_file = open(".env")
-    content = my_file.read()
-    key_values = content.splitlines()
-    for k_val in key_values:
-        if prop in k_val.split('=')[0]:
-            return k_val.split('=')[1]
-
-
-def edit_config_value_by_property(prop, new_val):
-    my_file = open("configs.txt")
-    content = my_file.read()
-    key_values = content.splitlines()
-    new_list = []
-    to_edit = None
-    for k_val in key_values:
-        if prop in k_val.split('=')[0]:
-            to_edit = k_val.split('=')[0]
-        else:
-            new_list = [*new_list, k_val]
-    my_file_write = open("configs.txt", "w")
-    new_str = prop + '=' + new_val + '\n'
-    for n_list in new_list:
-        new_str = new_str + n_list + '\n'
-    my_file_write.write(new_str)
 
 
 @client.event
@@ -593,7 +634,7 @@ async def on_ready():
     
 
 def long_operation_thread(window):
-    token = get_env_value_by_property('BOT_TOKEN')
+    token = get_env_value_by_property('BTK')
     client.run(token)
 
 
@@ -750,7 +791,7 @@ def the_gui():
     ]
 
     global window
-    window = sg.Window('Bombcrypto bot', layout)
+    window = sg.Window('bcrypto bot - by @oliveraf', layout)
 
 
     layout2 = [
