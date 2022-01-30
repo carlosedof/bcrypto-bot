@@ -15,7 +15,6 @@ import uuid
 from PySimpleGUI import PySimpleGUI as sg
 from multiprocessing import Process
 from check_team_viewer import check_team_viewer
-from close_list_go_farm import close_list_go_farm
 from utils.randomness import add_random
 from utils.date import date_formatted
 import string
@@ -25,7 +24,7 @@ def get_config_value_by_property(prop):
     content = my_file.read()
     key_values = content.splitlines()
     for k_val in key_values:
-        if prop in k_val.split('=')[0]:
+        if prop == k_val.split('=')[0]:
             return k_val.split('=')[1]
 
 def get_env_value_by_property(prop):
@@ -59,7 +58,7 @@ def connect_wallet():
     print('::: connecting with wallet :::')
     connect_wallet_img = cv2.imread(r"assets/connectWallet.png")
     time_start = now
-    connect_wallet_ref = pyautogui.locateCenterOnScreen(connect_wallet_img, confidence=0.9)
+    connect_wallet_ref = None
     while not connect_wallet_ref:
         connect_wallet_ref = pyautogui.locateCenterOnScreen(connect_wallet_img, confidence=0.9)
         time.sleep(1)
@@ -73,7 +72,7 @@ def connect_wallet():
     print('::: accepting metamask :::')
     meta_img = cv2.imread(r"assets/acceptMeta.png")
     time_start = now
-    authorize = pyautogui.locateCenterOnScreen(meta_img, confidence=0.8)
+    authorize = None
     while not authorize:
         authorize = pyautogui.locateCenterOnScreen(meta_img, confidence=0.8)
         time.sleep(1)
@@ -96,6 +95,34 @@ def change_page(next):
             pyautogui.move(0, 100)
             pyautogui.drag(0, 325, 2.3, button='left')
         time.sleep(1.6)
+
+def close_list_go_farm():
+    now = time.time()
+    time_start = now
+    print(' ')
+    print('::: going to farm page... :::')
+    print(' ')
+    close_btn_img = cv2.imread(r"assets/close.png")
+    close_btn = None
+    while not close_btn:
+        close_btn = pyautogui.locateCenterOnScreen(close_btn_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
+    if close_btn:
+        pyautogui.click(close_btn.x, close_btn.y);
+        pyautogui.click(close_btn.x, close_btn.y);
+    farm_img = cv2.imread(r"assets/farm.png")
+    farm = None
+    time_start = now
+    while not farm:
+        farm = pyautogui.locateCenterOnScreen(farm_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
+    if farm:
+        pyautogui.click(farm.x, farm.y)
+        pyautogui.click(farm.x, farm.y)
 
 def check_network_error():
     print('::: verifying server unstable error... :::')
@@ -181,21 +208,45 @@ def get_focus():
 
 
 def refresh_positions():
+    now = time.time()
+    time_start = now
     print('::: to avoid idle logout...   :::')
     back_img = cv2.imread(r"assets/back.png")
-    back = pyautogui.locateCenterOnScreen(back_img, confidence=0.9)
+    back = None
+    while not back:
+        back = pyautogui.locateCenterOnScreen(back_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
     if back:
         pyautogui.click(back.x, back.y)
         pyautogui.click(back.x, back.y)
-    time.sleep(0.1)
+    farm_img = cv2.imread(r"assets/farm.png")
+    farm = None
+    time_start = now
+    while not farm:
+        farm = pyautogui.locateCenterOnScreen(farm_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
+    if farm:
+        pyautogui.click(farm.x, farm.y)
+        pyautogui.click(farm.x, farm.y)
 
 def take_screenshot():
+    now = time.time()
+    time_start = now
     chest_img = cv2.imread(r"assets/chest.png")
-    chest = pyautogui.locateCenterOnScreen(chest_img, confidence=0.9)
+    chest = None
+    while not chest:
+        chest = pyautogui.locateCenterOnScreen(chest_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
     if chest:
         pyautogui.click(chest.x, chest.y)
         pyautogui.click(chest.x, chest.y)
-    time.sleep(1.5)
+    time.sleep(2)
     image = pyautogui.screenshot()
     image.save('print.png')
     close_bcoin_img = cv2.imread(r"assets/closeBcoin.png")
@@ -253,9 +304,15 @@ def check_full_heroes():
 
 
 def check_heroes(cycle_count):
+    now = time.time()
+    time_start = now
     restAll_img = cv2.imread(r"assets/restAll.png")
-    rest = pyautogui.locateCenterOnScreen(restAll_img, confidence=0.9)
-    time.sleep(0.5)
+    rest = None
+    while not rest:
+        rest = pyautogui.locateCenterOnScreen(restAll_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
     print('::: renewing work list  :::')
     if rest:
         pyautogui.click(rest.x, rest.y)
@@ -294,14 +351,15 @@ def fresh_start():
     connect_wallet()
     time_start = now
     farm_img = cv2.imread(r"assets/farm.png")
-    farm = pyautogui.locateCenterOnScreen(farm_img, confidence=0.9)
-    while not authorize:
+    farm = None
+    while not farm:
         farm = pyautogui.locateCenterOnScreen(farm_img, confidence=0.9)
         time.sleep(1)
         if time.time() - time_start > 5 * 60:
             fresh_start()
     print('::: sending to farm  :::')
     if farm:
+        pyautogui.click(farm.x, farm.y)
         pyautogui.click(farm.x, farm.y)
     time.sleep(0.3)
 
@@ -337,6 +395,7 @@ last = {
     "screen_shot": 0,
     "validate_account": 0,
     "cycle_count": 0,
+    "restart": 0
 }
 validate_fail_attempts = 0
 
@@ -362,7 +421,6 @@ def refresh_cycle():
     window.write_event_value('TASK_UPDATE', 'Refreshing map')
     last["refresh_heroes"] = now
     refresh_positions()
-    close_list_go_farm()
     window.write_event_value('TASK_UPDATE', 'Idle')
     print(date_formatted() + ' - finished anti idle.')
 
@@ -395,11 +453,17 @@ async def validate_account_cycle():
 # locates game window - back btn and opens char list
 def go_char_list():
     now = time.time()
+    time_start = now
     print(' ')
     print('::: moving to char list... :::')
     print(' ')
     back_img = cv2.imread(r"assets/back.png")
-    back = pyautogui.locateCenterOnScreen(back_img, confidence=0.9)
+    back = None
+    while not back:
+        back = pyautogui.locateCenterOnScreen(back_img, confidence=0.9)
+        time.sleep(1)
+        if time.time() - time_start > 5 * 60:
+            fresh_start()
     time.sleep(0.1)
     if back:
         pyautogui.click(back.x, back.y)
@@ -477,6 +541,11 @@ async def main():
             window.write_event_value('TASK_UPDATE', 'Validating account key')
             await validate_account_cycle()
             window.write_event_value('TASK_UPDATE', 'Idle')
+
+        if now - last["restart"] > add_random(t["restart"] * 60):
+            if t["restartActive"]:
+                last["restart"] = now
+                fresh_start()
 
     except Exception as e:
         print(e)
@@ -559,6 +628,8 @@ async def check_send_print():
         "send_heroes_for_work": get_config_value_by_property('MANAGE_HEROES'),
         "refresh_heroes_positions": get_config_value_by_property('ANTI_IDLE'),
         "screen_shot": get_config_value_by_property('SCREENSHOT'),
+        "restart": get_config_value_by_property('RESTART'),
+        "restartActive": get_config_value_by_property('REST_ACTIVE') == 'True',
         "validate_account": 60
     }
     if valid_account:
@@ -679,6 +750,16 @@ def bot_loop():
             edit_config_value_by_property('MANAGE_HEROES', values['MANAGE_HEROES'])
             window.Element('MANAGE_HEROES_LABEL').update(values['MANAGE_HEROES'] + 'm')
             window.Element('MANAGE_HEROES').update('')
+        elif event == 'RESTART_BTN':
+            edit_config_value_by_property('RESTART', values['RESTART'])
+            window.Element('RESTART_LABEL').update(values['RESTART'] + 'm')
+            window.Element('RESTART').update('')
+        elif values['RESTART_CHECKBOX'] == True:
+            print('Activated restart feature.')
+            edit_config_value_by_property('REST_ACTIVE', 'True')
+        elif values['RESTART_CHECKBOX'] == False:
+            print('Disabled restart feature.')
+            edit_config_value_by_property('REST_ACTIVE', 'False')
         elif event == 'TASK_UPDATE':
             window.Element('TASK').update(values['TASK_UPDATE'])
     window.close()
@@ -743,6 +824,23 @@ def the_gui():
             sg.Button('Change', key='SCREENSHOT_BTN')
         ]
     ]
+    configs_col_l4 = [
+        [
+            sg.Text('Restart:', size=(13, 1)),
+            sg.Text(get_config_value_by_property('RESTART') + 'm', key='RESTART_LABEL'),
+        ]
+    ]
+    configs_col_r4 = [
+        [
+            sg.Input(key='RESTART', size=(5, 1)),
+            sg.Button('Change', key='RESTART_BTN')
+        ]
+    ]
+    configs_col_l5 = [
+        [
+            sg.Checkbox('Restart Activated', default=get_config_value_by_property('REST_ACTIVE') == 'True', key='RESTART_CHECKBOX', enable_events=True)
+        ]
+    ]
     activation_status_col = [
         [
             sg.Text('Activation status:'),
@@ -771,6 +869,13 @@ def the_gui():
         [
             sg.Column(configs_col_l3, element_justification='left',expand_x=True),
             sg.Column(configs_col_r3, element_justification='right')
+        ],
+        [
+            sg.Column(configs_col_l4, element_justification='left',expand_x=True),
+            sg.Column(configs_col_r4, element_justification='right')
+        ],
+        [
+            sg.Column(configs_col_l5, element_justification='left',expand_x=True),
         ],
         [
             sg.Button('Start bot', bind_return_key=True, size=(15,1)),
