@@ -1,0 +1,8 @@
+cx-Freeze==6.9
+discord.py==1.7.3
+PyAutoGUI==1.2.0
+Pillow==9.0.0
+PySimpleGUI==4.56.0
+pywin32==303
+requests==2.27.1
+opencv-python==4.5.5.62
