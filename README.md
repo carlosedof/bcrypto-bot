@@ -3,9 +3,7 @@
 ## A bot that automates farming at bomb crypto NFT game
 
 
-
-
-This is the docs of python bcrypto bot.
+This Python-based bot is designed to automate farming in the Bomb Crypto NFT game. It uses image recognition to navigate through the game's various challenges and tasks to optimize farming yields. The bot can be customized to suit the user's preferences, and it can handle repetitive tasks with ease. The bot is intended to increase efficiency and save time for users who want to maximize their farming profits in the Bomb Crypto NFT game.
 
 
 ## Features
